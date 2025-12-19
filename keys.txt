@@ -1,0 +1,1 @@
+emqx_api_key:emqx_secret_key_12345

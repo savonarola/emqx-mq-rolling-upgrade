@@ -1,0 +1,167 @@
+networks:
+  emqx-bridge:
+    driver: bridge
+
+volumes:
+  emqx1-data:
+  emqx2-data:
+  emqx3-data:
+
+services:
+  # Old cluster - EMQX 6.0.0
+  emqx1-old:
+    image: emqx/emqx-enterprise:6.0.0
+    container_name: emqx1-old
+    hostname: emqx1.emqx.local
+    environment:
+      - EMQX_NODE_NAME=emqx@emqx1.emqx.local
+      - EMQX_LICENSE__KEY=evaluation
+      - EMQX_CLUSTER__DISCOVERY_STRATEGY=static
+      - EMQX_CLUSTER__STATIC__SEEDS=emqx@emqx1.emqx.local,emqx@emqx2.emqx.local,emqx@emqx3.emqx.local
+      - EMQX_API_KEY__BOOTSTRAP_FILE=/opt/emqx/etc/keys.txt
+    ports:
+      - "1883:1883"
+      - "18083:18083"
+    volumes:
+      - emqx1-data:/opt/emqx/data
+      - ./keys.txt:/opt/emqx/etc/keys.txt:ro
+    networks:
+      - emqx-bridge
+    healthcheck:
+      test: ["CMD", "emqx", "ctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  emqx2-old:
+    image: emqx/emqx-enterprise:6.0.0
+    container_name: emqx2-old
+    hostname: emqx2.emqx.local
+    environment:
+      - EMQX_NODE_NAME=emqx@emqx2.emqx.local
+      - EMQX_LICENSE__KEY=evaluation
+      - EMQX_CLUSTER__DISCOVERY_STRATEGY=static
+      - EMQX_CLUSTER__STATIC__SEEDS=emqx@emqx1.emqx.local,emqx@emqx2.emqx.local,emqx@emqx3.emqx.local
+      - EMQX_API_KEY__BOOTSTRAP_FILE=/opt/emqx/etc/keys.txt
+    ports:
+      - "1884:1883"
+      - "18084:18083"
+    volumes:
+      - emqx2-data:/opt/emqx/data
+      - ./keys.txt:/opt/emqx/etc/keys.txt:ro
+    networks:
+      - emqx-bridge
+    healthcheck:
+      test: ["CMD", "emqx", "ctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  emqx3-old:
+    image: emqx/emqx-enterprise:6.0.0
+    container_name: emqx3-old
+    hostname: emqx3.emqx.local
+    environment:
+      - EMQX_NODE_NAME=emqx@emqx3.emqx.local
+      - EMQX_LICENSE__KEY=evaluation
+      - EMQX_CLUSTER__DISCOVERY_STRATEGY=static
+      - EMQX_CLUSTER__STATIC__SEEDS=emqx@emqx1.emqx.local,emqx@emqx2.emqx.local,emqx@emqx3.emqx.local
+      - EMQX_API_KEY__BOOTSTRAP_FILE=/opt/emqx/etc/keys.txt
+    ports:
+      - "1885:1883"
+      - "18085:18083"
+    volumes:
+      - emqx3-data:/opt/emqx/data
+      - ./keys.txt:/opt/emqx/etc/keys.txt:ro
+    networks:
+      - emqx-bridge
+    healthcheck:
+      test: ["CMD", "emqx", "ctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # New cluster - EMQX 6.1.0-alpha.2
+  emqx1-new:
+    image: emqx/emqx-enterprise:6.1.0-alpha.2
+    container_name: emqx1-new
+    hostname: emqx1.emqx.local
+    environment:
+      - EMQX_NODE_NAME=emqx@emqx1.emqx.local
+      - EMQX_LICENSE__KEY=evaluation
+      - EMQX_CLUSTER__DISCOVERY_STRATEGY=static
+      - EMQX_CLUSTER__STATIC__SEEDS=emqx@emqx1.emqx.local,emqx@emqx2.emqx.local,emqx@emqx3.emqx.local
+      - EMQX_API_KEY__BOOTSTRAP_FILE=/opt/emqx/etc/keys.txt
+      - EMQX_MQ__ENABLE=false
+      - EMQX_STREAMS__ENABLE=false
+    ports:
+      - "1883:1883"
+      - "18083:18083"
+    volumes:
+      - emqx1-data:/opt/emqx/data
+      - ./keys.txt:/opt/emqx/etc/keys.txt:ro
+    networks:
+      - emqx-bridge
+    healthcheck:
+      test: ["CMD", "emqx", "ctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - upgrade
+
+  emqx2-new:
+    image: emqx/emqx-enterprise:6.1.0-alpha.2
+    container_name: emqx2-new
+    hostname: emqx2.emqx.local
+    environment:
+      - EMQX_NODE_NAME=emqx@emqx2.emqx.local
+      - EMQX_LICENSE__KEY=evaluation
+      - EMQX_CLUSTER__DISCOVERY_STRATEGY=static
+      - EMQX_CLUSTER__STATIC__SEEDS=emqx@emqx1.emqx.local,emqx@emqx2.emqx.local,emqx@emqx3.emqx.local
+      - EMQX_API_KEY__BOOTSTRAP_FILE=/opt/emqx/etc/keys.txt
+      - EMQX_MQ__ENABLE=false
+      - EMQX_STREAMS__ENABLE=false
+    ports:
+      - "1884:1883"
+      - "18084:18083"
+    volumes:
+      - emqx2-data:/opt/emqx/data
+      - ./keys.txt:/opt/emqx/etc/keys.txt:ro
+    networks:
+      - emqx-bridge
+    healthcheck:
+      test: ["CMD", "emqx", "ctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - upgrade
+
+  emqx3-new:
+    image: emqx/emqx-enterprise:6.1.0-alpha.2
+    container_name: emqx3-new
+    hostname: emqx3.emqx.local
+    environment:
+      - EMQX_NODE_NAME=emqx@emqx3.emqx.local
+      - EMQX_LICENSE__KEY=evaluation
+      - EMQX_CLUSTER__DISCOVERY_STRATEGY=static
+      - EMQX_CLUSTER__STATIC__SEEDS=emqx@emqx1.emqx.local,emqx@emqx2.emqx.local,emqx@emqx3.emqx.local
+      - EMQX_API_KEY__BOOTSTRAP_FILE=/opt/emqx/etc/keys.txt
+      - EMQX_MQ__ENABLE=false
+      - EMQX_STREAMS__ENABLE=false
+    ports:
+      - "1885:1883"
+      - "18085:18083"
+    volumes:
+      - emqx3-data:/opt/emqx/data
+      - ./keys.txt:/opt/emqx/etc/keys.txt:ro
+    networks:
+      - emqx-bridge
+    healthcheck:
+      test: ["CMD", "emqx", "ctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - upgrade
